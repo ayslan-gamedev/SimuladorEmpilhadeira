@@ -118,30 +118,37 @@ public class moveCar : MonoBehaviour
             traseiraEsquerda.brakeTorque = 0;
 
         }
-        if (input.x == 1 && volante.transform.eulerAngles.z < 140)
+
+        // Encapsulamento de tabela condicional para substituir sequência de ifs,
+        // melhorando a legibilidade e facilitando manutenção.
+        var possibilidades = new bool[]
         {
-
-            volante.transform.Rotate(new Vector3(0, 0, 1));
-
-        }
-        else if (input.x == 0 && volante.transform.localEulerAngles.z >= 71)
+            input.x == 1 && volante.transform.eulerAngles.z < 140, // jogador vira para a direita e volante ainda não atingiu o limite de rotação à direita
+            input.x == 0 && volante.transform.localEulerAngles.z >= 71, // jogador soltou a direção e o volante está girado para a direita, então gira de volta para o centro
+            input.x == -1 && volante.transform.eulerAngles.z > 10, // jogador vira para a esquerda e volante ainda não atingiu o limite de rotação à esquerda
+            input.x == 0 && volante.transform.localEulerAngles.z < 70 // jogador soltou a direção e o volante está girado para a esquerda, então gira de volta para o centro
+        };
+        
+        // Busca a última condição verdadeira (prioriza a mais recente válida)
+        int caso = Array.FindLastIndex(possibilidades, p => p);
+        
+        // Executa o comportamento baseado no caso identificado
+        switch (caso)
         {
-
-            volante.transform.Rotate(new Vector3(0, 0, -1));
-
+            case 0:
+                volante.transform.Rotate(new Vector3(0, 0, 1)); // gira o volante para a direita
+                break;
+            case 1:
+                volante.transform.Rotate(new Vector3(0, 0, -1)); // recentraliza o volante a partir da direita
+                break;
+            case 2:
+                volante.transform.Rotate(new Vector3(0, 0, -1)); // gira o volante para a esquerda
+                break;
+            case 3:
+                volante.transform.Rotate(new Vector3(0, 0, 1)); // recentraliza o volante a partir da esquerda
+                break;
         }
-        else if (input.x == -1 && volante.transform.eulerAngles.z > 10)
-        {
 
-            volante.transform.Rotate(new Vector3(0, 0, -1));
-
-        }
-        else if (input.x == 0 && volante.transform.localEulerAngles.z < 70)
-        {
-
-            volante.transform.Rotate(new Vector3(0, 0, 1));
-
-        }
 
         if (Input.GetKeyDown(KeyCode.T) && verificarCameraRe == false)
         {
@@ -157,6 +164,7 @@ public class moveCar : MonoBehaviour
             verificarCameraRe = false;
 
         }
+        
         //restart a cema
         if(Input.GetKeyDown(KeyCode.F)) {
              SceneManager.LoadScene("Programa��o");
